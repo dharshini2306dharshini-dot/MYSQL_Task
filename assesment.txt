@@ -1,0 +1,189 @@
+ show database;
+ERROR: 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'database' at line 1
+ MySQL  localhost:33060+ ssl  SQL > show databases;
++--------------------+
+| Database           |
++--------------------+
+| b'salesdb'         |
+| college            |
+| demo1              |
+| information_schema |
+| mydatabase         |
+| mysql              |
+| mywork             |
+| performance_schema |
+| pet_db             |
+| salesdb            |
+| sys                |
+| test               |
+| testbd             |
++--------------------+
+13 rows in set (0.0025 sec)
+ MySQL  localhost:33060+ ssl  SQL > use mydatabase;
+Default schema set to `mydatabase`.
+Fetching global names, object names from `mydatabase` for auto-completion... Press ^C to stop.
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > create table departments (
+                                             ->     deptid int primary key,
+                                             ->     deptname varchar(50));
+Query OK, 0 rows affected (0.0339 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > create table employees (
+                                             ->     empid int primary key,
+                                             ->     empname varchar(50),
+                                             ->     deptid int,
+                                             ->     salary int
+                                             -> );
+Query OK, 0 rows affected (0.0257 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > insert into departments values(101, 'sales'),(102, 'hr'),(103, 'it'),(105, 'marketing');
+Query OK, 4 rows affected (0.0103 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  mydatabase  SQL >
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > insert into employees values
+                                             -> (1, 'arun', 101, 45000),
+                                             -> (2, 'bhavya', 102, 52000),
+                                             -> (3, 'chitra', 101, 47000),
+                                             -> (4, 'dinesh', 103, 39000),
+                                             -> (5, 'esha', null, 41000),
+                                             -> (6, 'farhan', 104, 55000);
+Query OK, 6 rows affected (0.0094 sec)
+
+Records: 6  Duplicates: 0  Warnings: 0
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > desc employees;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| empid   | int         | NO   | PRI | NULL    |       |
+| empname | varchar(50) | YES  |     | NULL    |       |
+| deptid  | int         | YES  |     | NULL    |       |
+| salary  | int         | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+4 rows in set (0.0041 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname, salary from employees inner join departments on employees.deptid = departments.deptid;
++---------+----------+--------+
+| empname | deptname | salary |
++---------+----------+--------+
+| arun    | sales    |  45000 |
+| bhavya  | hr       |  52000 |
+| chitra  | sales    |  47000 |
+| dinesh  | it       |  39000 |
++---------+----------+--------+
+4 rows in set (0.0010 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname, salary
+                                             -> from employees
+                                             -> left join departments
+                                             -> on employees.deptid = departments.deptid;
++---------+----------+--------+
+| empname | deptname | salary |
++---------+----------+--------+
+| arun    | sales    |  45000 |
+| bhavya  | hr       |  52000 |
+| chitra  | sales    |  47000 |
+| dinesh  | it       |  39000 |
+| esha    | NULL     |  41000 |
+| farhan  | NULL     |  55000 |
++---------+----------+--------+
+6 rows in set (0.0011 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname from employees left join departments on employees.deptid = departments.deptid union select empname, deptname from employees right join departments on employees.deptid = departments.deptid;
++---------+-----------+
+| empname | deptname  |
++---------+-----------+
+| arun    | sales     |
+| bhavya  | hr        |
+| chitra  | sales     |
+| dinesh  | it        |
+| esha    | NULL      |
+| farhan  | NULL      |
+| NULL    | marketing |
++---------+-----------+
+7 rows in set (0.0046 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select * from employees left join departments on employees.deptid = departments.deptid where departments.deptid is null;
++-------+---------+--------+--------+--------+----------+
+| empid | empname | deptid | salary | deptid | deptname |
++-------+---------+--------+--------+--------+----------+
+|     5 | esha    |   NULL |  41000 |   NULL | NULL     |
+|     6 | farhan  |    104 |  55000 |   NULL | NULL     |
++-------+---------+--------+--------+--------+----------+
+2 rows in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select * from departments left join employees on departments.deptid = employees.deptid where employees.empid is null;
++--------+-----------+-------+---------+--------+--------+
+| deptid | deptname  | empid | empname | deptid | salary |
++--------+-----------+-------+---------+--------+--------+
+|    105 | marketing |  NULL | NULL    |   NULL |   NULL |
++--------+-----------+-------+---------+--------+--------+
+1 row in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select e.empname,d.deptname from employees as e right join departments as d on e.deptid=d.deptid;
++---------+-----------+
+| empname | deptname  |
++---------+-----------+
+| chitra  | sales     |
+| arun    | sales     |
+| bhavya  | hr        |
+| dinesh  | it        |
+| NULL    | marketing |
++---------+-----------+
+5 rows in set (0.0548 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select e.empname,d.deptname from departments as d right join employees as e on e.deptid=d.deptid;
++---------+----------+
+| empname | deptname |
++---------+----------+
+| arun    | sales    |
+| bhavya  | hr       |
+| chitra  | sales    |
+| dinesh  | it       |
+| esha    | NULL     |
+| farhan  | NULL     |
++---------+----------+
+6 rows in set (0.0076 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname, salary from employees, departments where employees.deptid = departments.deptid;
++---------+----------+--------+
+| empname | deptname | salary |
++---------+----------+--------+
+| arun    | sales    |  45000 |
+| bhavya  | hr       |  52000 |
+| chitra  | sales    |  47000 |
+| dinesh  | it       |  39000 |
++---------+----------+--------+
+4 rows in set (0.0014 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname, salary from departments right join employees on departments.deptid = employees.deptid;
++---------+----------+--------+
+| empname | deptname | salary |
++---------+----------+--------+
+| arun    | sales    |  45000 |
+| bhavya  | hr       |  52000 |
+| chitra  | sales    |  47000 |
+| dinesh  | it       |  39000 |
+| esha    | NULL     |  41000 |
+| farhan  | NULL     |  55000 |
++---------+----------+--------+
+6 rows in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  mydatabase  SQL > select empname, deptname from employees cross join departments;
++---------+-----------+
+| empname | deptname  |
++---------+-----------+
+| arun    | marketing |
+| arun    | it        |
+| arun    | hr        |
+| arun    | sales     |
+| bhavya  | marketing |
+| bhavya  | it        |
+| bhavya  | hr        |
+| bhavya  | sales     |
+| chitra  | marketing |
+| chitra  | it        |
+| chitra  | hr        |
+| chitra  | sales     |
+| dinesh  | marketing |
+| dinesh  | it        |
+| dinesh  | hr        |
+| dinesh  | sales     |
+| esha    | marketing |
+| esha    | it        |
+| esha    | hr        |
+| esha    | sales     |
+| farhan  | marketing |
+| farhan  | it        |
+| farhan  | hr        |
+| farhan  | sales     |
++---------+-----------+
+24 rows in set (0.0013 sec)
+ MySQL  localhost:33060+ ssl  mydatabase 
